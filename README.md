@@ -20,3 +20,9 @@ The resulting directory structure will look like the following:
 │   └── user.csv
 └── (other files and folders)
 ```
+
+## Current Project Status
+
+* We have completed code for obtaining user and business profiles that are purely review-based.
+* We have completed computing business profiles.
+* Computation for user profiles is still in progress and will need another 4 days to complete.
