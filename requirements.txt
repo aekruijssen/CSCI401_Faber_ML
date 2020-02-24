@@ -3,3 +3,4 @@ numpy
 pandas
 faiss-cpu
 tqdm
+flask
