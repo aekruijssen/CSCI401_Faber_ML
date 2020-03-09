@@ -20,22 +20,35 @@ def predict_score():
     Sample Input (in json format):
     { 
         "user": {
-            "latitude": 40,
-            "longitude": -80,
+            "location": {
+                "latitude": 40,
+                "longitude": -80
+            },
             "...": (other info),
             "reviews": [
                 {
-                    "item_id": "A",
+                    "business_id": "A",
                     "rating": 4.5,
-                    "text": "Blah."
+                    "content": "Blah."
                 }
             ]
         },
-        "item_id": "asdf"
+        "business_id": "asdf"
     }
     '''
     content = request.json
-    return jsonify(model.predict_score(content["user"], content["item_id"]))
+    return jsonify(model.predict_score(content["user"], content["business_id"]))
+
+@app.route('/make_recommendations', methods=['POST'])
+def make_recommendations():
+    '''
+    Makes recommendations for items given a user.
+
+    Sample input is the same as the obj["user"] part of the inupt above.
+    '''
+    content = request.json
+    return jsonify(model.make_recommendations(content))
+
     
 if __name__ == "__main__":
     app.run(port=6010, threaded=True, host='0.0.0.0')

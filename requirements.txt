@@ -1,6 +1,10 @@
 jupyter
 numpy
 pandas
+geopandas
 faiss-cpu
 tqdm
 flask
+shapely
+pathos
+requests

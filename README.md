@@ -38,6 +38,14 @@ Run the web service at port 6010 by running the following command: `python3 app.
 
 ## Current Project Status
 
+### Feb 23rd, 2020
+
 * We have completed user and item vector extraction based on reviews only.
 * We have completed prototype for (user, item) score prediction model.
 * We have finished the web service for score prediction; the API usage can be found at [this link](https://www.getpostman.com/collections/8973bb93151b84d82b38).
+
+### Mar 8th, 2020
+
+* We have completed the code for coping with cold start survey data.
+* We have completed prototype for the recommendation API that gets user as input and outputs a list of business recommendations as output.
+* We have updated the web service; the API usage can be found as the same link above.

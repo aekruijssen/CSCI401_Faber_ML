@@ -1,7 +1,20 @@
 import os
 import numpy as np
 import pandas as pd
+import geopandas as gpd
 import faiss
+from shapely.geometry import Point
+from pathos.multiprocessing import ProcessPool as Pool
+import requests
+from flask import request
+
+BASE_URL = 'http://lim-a.usc.edu:6010/'
+
+def request_item_rating(user, item):
+    json_data = { "user": user, "business_id": item }
+    req = requests.post(BASE_URL + 'predict_api', json=json_data)
+    print('finish with: {}'.format(req.text))
+    return item, float(req.text)
 
 class RecommendationEngine(object):
     def __init__(self):
@@ -15,22 +28,25 @@ class RecommendationEngine(object):
         
         # initialize the user index
         self.d = len(self.df_user.iloc[0]['aspect_weights'])
-        self.index = faiss.IndexFlatIP(self.d)
+        self.user_index = faiss.IndexFlatIP(self.d)
 
-        # populate the index with user vectors
+        # populate the user index with user vectors
         user_vectors = np.array(self.df_user['aspect_weights'].to_list()).astype(np.float32)
         user_vectors = user_vectors / np.linalg.norm(user_vectors, axis=1, keepdims=True)
-        self.index.add(user_vectors)
-        
-        # print message
+        self.user_index.add(user_vectors)
+
+        # build geo-dataframe for items
+        geometry = [Point(xy) for xy in zip(self.df_item['longitude'], self.df_item['latitude'])]
+        self.geo_df_item = gpd.GeoDataFrame(self.df_item, geometry=geometry)
+
         print('Recommendation engine initialization finished.')
         
     def get_user_vector(self, reviews):
-        # sample input: [{"item_id": "xyz", "rating": 5}]
+        # sample input: [{"business_id": "xyz", "rating": 5}]
         # output: user vector
         w_uk = np.zeros((self.d,))
         for review in reviews:
-            item_row = self.df_item.loc[self.df_item["item_id"] == review["item_id"]]
+            item_row = self.df_item.loc[self.df_item["item_id"] == review["business_id"]]
             if len(item_row) == 0:
                 continue
             w_uk += float(review["rating"]) * np.array(item_row.iloc[0]["aspect_weights"]).astype(float)
@@ -41,7 +57,7 @@ class RecommendationEngine(object):
         item_vector = np.array(self.df_item[self.df_item["item_id"] == item_id].iloc[0]["aspect_weights"]).astype(float)
 
         # get the nearest k users given the user vector
-        nearest_user_dists, nearest_users = self.index.search(user_vector.reshape((1,self.d)).astype(np.float32), k)
+        nearest_user_dists, nearest_users = self.user_index.search(user_vector.reshape((1,self.d)).astype(np.float32), k)
         nearest_user_dists = nearest_user_dists / np.linalg.norm(nearest_user_dists)
 
         score_info = []
@@ -72,14 +88,33 @@ class RecommendationEngine(object):
     
     def predict_score(self, user, item_id):
         # sample user input: { 
-        #     "latitude": 40,
-        #     "longitude": -80,
+        #     "location": {
+        #         "latitude": 40,
+        #         "longitude": -80,
+        #     },
         #     "...": (other info),
         #     "reviews": [
         #         {
-        #             "item_id": "A",
+        #             "business_id": "A",
         #             "rating": 4.5
         #         }
         #     ]
         # }
-        return self.rate_item(self.get_user_vector(user["reviews"]), item_id)
+        reviews = user["reviews"]
+        if "ratings" in user.keys():
+            reviews += user["ratings"]
+        return self.rate_item(self.get_user_vector(reviews), item_id)
+
+    def make_recommendations(self, user, k=20, distance_threshold=0.3):
+        user_location = Point(user['location']['longitude'], user['location']['latitude'])
+        boundary = user_location.buffer(distance_threshold)
+        nearby_items = self.geo_df_item[self.geo_df_item.geometry.within(boundary)]
+        nearby_items = nearby_items.sort_values(by='stars', ascending=False).iloc[:2*k]
+
+        p = Pool(24)
+        item_id_list = nearby_items['item_id'].tolist()
+        score_list = p.map(request_item_rating, [user] * len(item_id_list), item_id_list)
+        p.close()
+
+        score_list.sort(key=lambda x: x[1])
+        return [x[0] for x in score_list[-k:]]
