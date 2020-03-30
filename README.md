@@ -49,3 +49,9 @@ Run the web service at port 6010 by running the following command: `python3 app.
 * We have completed the code for coping with cold start survey data.
 * We have completed prototype for the recommendation API that gets user as input and outputs a list of business recommendations as output.
 * We have updated the web service; the API usage can be found as the same link above.
+
+### Mar 29th, 2020
+
+* We have refactored the code for extending additional models for the recommendation engine.
+* We have updated the aspect-based collaborative filtering recommendation engine with user review rating normalization. Now other user's ratings will be recorded as an overall mean over all reviews and a normalized score. This will help the engine deal with the bias of ratings given by different users.
+* We have added evaluation code for the recommendation engine. Currently, we only support the RMSE error on the predicted item score. We will add additional metrics in the near future.
