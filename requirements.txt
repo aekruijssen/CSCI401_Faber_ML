@@ -8,3 +8,4 @@ flask
 shapely
 pathos
 requests
+sklearn

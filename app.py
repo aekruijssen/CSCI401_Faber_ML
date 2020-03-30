@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
 
-from recommendation_engine import RecommendationEngine
+from recommendation_engine import CFARecommendationEngine as RE
 
 app = Flask(__name__)
-model = RecommendationEngine()
+model = RE()
 
 @app.route('/', methods=['GET'])
 def hello_world():
