@@ -1,37 +1,54 @@
-import numpy as np
-from flask import Flask, request, jsonify, render_template
-import pickle
+from flask import Flask, request, jsonify
+
+from recommendation_engine import CFARecommendationEngine as RE
 
 app = Flask(__name__)
-model = pickle.load(open('model.pkl', 'rb'))
+model = RE()
 
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/predict',methods=['POST'])
-def predict():
+@app.route('/', methods=['GET'])
+def hello_world():
     '''
-    For rendering results on HTML GUI
+    Hello world.
     '''
-    int_features = [int(x) for x in request.form.values()]
-    final_features = [np.array(int_features)]
-    prediction = model.predict(final_features)
-
-    output = round(prediction[0], 2)
-
-    return render_template('index.html', prediction_text='Rating $ {}'.format(output))
+    return "Hello world."
 
 @app.route('/predict_api',methods=['POST'])
-def predict_api():
+def predict_score():
     '''
-    For direct API calls trought request
+    Predicts score given (user, item) pair.
+    
+    Sample Input (in json format):
+    { 
+        "user": {
+            "location": {
+                "latitude": 40,
+                "longitude": -80
+            },
+            "...": (other info),
+            "reviews": [
+                {
+                    "business_id": "A",
+                    "rating": 4.5,
+                    "content": "Blah."
+                }
+            ]
+        },
+        "business_id": "asdf"
+    }
     '''
-    data = request.get_json(force=True)
-    prediction = model.predict([np.array(list(data.values()))])
+    content = request.json
+    return jsonify(model.predict_score(content["user"], content["business_id"]))
 
-    output = prediction[0]
-    return jsonify(output)
+@app.route('/make_recommendations', methods=['POST'])
+def make_recommendations():
+    '''
+    Makes recommendations for items given a user.
 
+    Sample input is the same as the obj["user"] part of the inupt above.
+    '''
+    content = request.json
+    return jsonify(model.make_recommendations(content))
+
+    
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=6010, threaded=True, host='0.0.0.0')

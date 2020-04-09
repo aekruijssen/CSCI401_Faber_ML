@@ -1,0 +1,12 @@
+werkzeug>=0.15.0
+jupyter
+numpy
+pandas
+geopandas
+faiss-cpu
+tqdm
+flask==1.0.0
+shapely
+pathos
+requests
+sklearn
