@@ -4,6 +4,13 @@ import pandas as pd
 from sklearn.utils import shuffle
 
 
+def get_dataset_by_name(dataset_name):
+    if dataset_name == 'yelp':
+        return YelpReviewsDataset
+    else:
+        raise ValueError("Dataset with name {} doesn't exist.".format(dataset_name))
+
+
 class Dataset(object):
     def __init__(self, train_prob=0.6, val_prob=0.2, seed=42):
         self.train_prob = 0.6
@@ -33,11 +40,9 @@ class Dataset(object):
 class YelpReviewsDataset(Dataset):
     def __init__(self, **kwargs):
         super(YelpReviewsDataset, self).__init__(**kwargs)
-        
-        # filter review dataset by business ids that represent restaurants
-        self.dataset = shuffle(pd.read_csv('data/review.csv'), random_state=self.seed)
-        filtered_business_ids = pd.read_json('saved/item.json')['item_id'].tolist()
-        self.dataset = self.dataset[self.dataset['business_id'].isin(filtered_business_ids)]
+
+        # read dataset
+        self.dataset = shuffle(pd.read_json('data/generated/review.json'), random_state=self.seed)
         
         self.dataset_train = self.dataset.iloc[:self.size('train')]
         self.dataset_val = self.dataset.iloc[self.size('train'):self.size('train') + self.size('val')]
@@ -83,12 +88,13 @@ class YelpReviewsDataset(Dataset):
         for index, row in df.iterrows():
             reviews_of_user = self.dataset_train.loc[self.dataset_train['user_id'] == row['user_id']]
             reviews_of_user = reviews_of_user[['business_id', 'stars']]
-            user_obj = {"reviews": [], "user_id": row['user_id']}
+            user_obj = {"reviews": [], "user_id": row['user_id'], "vec": row['user_vec']}
             for _, review in reviews_of_user.iterrows():
                 user_obj["reviews"].append({'business_id': review['business_id'], 'rating': review['stars']})
             data_points.append({
                 "user": user_obj,
                 "item_id": row['business_id'],
+                "item_vec": row['business_vec'],
                 "stars": row['stars']
             })
         return data_points

@@ -1,14 +1,14 @@
-import os
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 import faiss
 from shapely.geometry import Point
-from pathos.multiprocessing import ProcessPool as Pool
 import requests
-from flask import request
+from pathos.multiprocessing import ProcessPool as Pool
 
-BASE_URL = 'http://lim-a.usc.edu:6010/'
+from components.recomemndation_engine import RecommendationEngine
+
+
+BASE_URL = 'http://lim-c.usc.edu:6010/'
 
 def request_item_rating(user, item):
     json_data = { "user": user, "business_id": item }
@@ -16,19 +16,7 @@ def request_item_rating(user, item):
     print('finish with: {}'.format(req.text))
     return item, float(req.text)
 
-
-class RecommendationEngine(object):
-    def __init__(self):
-        pass
-
-    def predict_score(self, user, item_id):
-        raise NotImplementedError("Please implement the predict_score method in a subclass.")
-
-    def make_recommendations(self, user, **kwargs):
-        raise NotImplementedError("Please implement the make_recommendation method in a subclass.")
-
-
-class CFARecommendationEngine(RecommendationEngine):
+class CfaRecommendationEngine(RecommendationEngine):
     '''Collaborative Filtering from Aspect Vectors.'''
 
     def __init__(self, df_review=None, relative=True):
@@ -36,12 +24,12 @@ class CFARecommendationEngine(RecommendationEngine):
         print('Initializing recommendation engine...')
 
         # read datasets
-        self.df_item = pd.read_json('saved/item.json')
-        self.df_user = pd.read_json('saved/user.json')
+        self.df_item = pd.read_json('data/generated/item.json')
+        self.df_user = pd.read_json('data/generated/user.json')
         if df_review is not None:
             self.df_review = df_review
         else:
-            self.df_review = pd.read_csv('data/review.csv')
+            self.df_review = pd.read_csv('data/yelp_data/review.csv')
 
         # flag to specify either to normalize ratings on user review average
         self.relative = relative
@@ -150,18 +138,3 @@ class CFARecommendationEngine(RecommendationEngine):
 
         score_list.sort(key=lambda x: x[1])
         return [x[0] for x in score_list[-k:]]
-
-
-class RandomRecommendationEngine(RecommendationEngine):
-    '''Random Baseline.'''
-
-    def __init__(self):
-        df_item = pd.read_json('saved/item.json')
-
-    def predict_score(self, user, item_id):
-        '''Returns a random score between 1.0 and 5.0.'''
-        return np.random.random_sample() * 4 + 1
-
-    def make_recommendations(self, user, **kwargs):
-        '''Returns a randomly sampled item.'''
-        return df_review.sample().iloc[0]['item_id']

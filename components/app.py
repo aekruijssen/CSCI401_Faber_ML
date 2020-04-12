@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 
-from recommendation_engine import CFARecommendationEngine as RE
+from methods.cf.cfa_recommendation_engine import CFARecommendationEngine as RE
 
 app = Flask(__name__)
 model = RE()

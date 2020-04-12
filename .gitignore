@@ -1,7 +1,6 @@
-saved/
-aspect/
 data/
 venv/
 .DS_Store
 .ipynb_checkpoints/
 __pycache__/
+logs/

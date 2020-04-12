@@ -2,34 +2,33 @@
 
 ## Setup
 
-Create a virtual environment: `python3 -m virtualenv venv`.
+Create a virtual environment: `virtualenv -p $(which python3) venv`.
 
 Activate the environment: `source venv/bin/activate`.
 
 Install packages: `pip3 install -r requirements.txt`.
 
-Download the Yelp dataset from [this link](https://www.kaggle.com/yelp-dataset/yelp-dataset/version/4). Save the CSV files `yelp_business.csv`, `yelp_review.csv` and `yelp_user.csv` to directory `data/` and rename to `business.csv`, `review.csv`, and `user.csv`.
+Download the Yelp dataset from [this link](https://www.kaggle.com/yelp-dataset/yelp-dataset/version/4). Save the CSV files `yelp_business.csv`, `yelp_review.csv` and `yelp_user.csv` to directory `data/yelp_data/` and rename to `business.csv`, `review.csv`, and `user.csv`.
 
-Download the aspect annotation information [aspect_restaurants.csv](http://ir.ii.uam.es/aspects/data/vocabularies/aspects_restaurants.zip), [lexicon_restaurants.csv](http://ir.ii.uam.es/aspects/data/lexicons/lexicon_restaurants.zip), and [annotations_voc_yelp_restaurants.txt](http://ir.ii.uam.es/aspects/data/annotations/voc/annotations_voc_yelp_restaurants.zip). Extract the zip files and save the enclosed files to `aspect/`.
+Download the aspect annotation information [aspect\_restaurants.csv](http://ir.ii.uam.es/aspects/data/vocabularies/aspects_restaurants.zip), [lexicon\_restaurants.csv](http://ir.ii.uam.es/aspects/data/lexicons/lexicon_restaurants.zip), and [annotations\_voc\_yelp\_restaurants.txt](http://ir.ii.uam.es/aspects/data/annotations/voc/annotations_voc_yelp_restaurants.zip). Extract the zip files and save the enclosed files to `data/aspect/`.
 
-Download the saved user and item vectors at [this link](https://drive.google.com/drive/folders/1Jt3U2ix-zsZljOEYikY8Hc3y_kLDYH5G?usp=sharing). Note that this link is only accessible for people with USC email addresses.
+Download the saved user and item vectors at [this link](https://drive.google.com/drive/folders/1Jt3U2ix-zsZljOEYikY8Hc3y_kLDYH5G?usp=sharing). Save them to folder `data/generated/` Note that this link is only accessible for people with USC email addresses.
 
-The resulting directory structure will look like the following:
+The resulting directory structure in the `data/` folder will look like the following:
 
 ```
-/ (root directory for project)
+./data/
 ├── aspect/
 │   ├── annotations_voc_yelp_restaurants.txt
 │   ├── aspects_restaurants.csv
 │   └── lexicon_restaurants.csv
-├── data/
+├── yelp_data/
 │   ├── business.csv
 │   ├── review.csv
 │   └── user.csv
-├── saved/
-│   ├── item.json
-│   └── user.json
-└── (other files and folders)
+└── generated/
+    ├── item.json
+    └── user.json
 ```
 
 ## Running the Web Service
