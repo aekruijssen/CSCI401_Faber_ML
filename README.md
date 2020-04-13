@@ -54,3 +54,11 @@ Run the web service at port 6010 by running the following command: `python3 app.
 * We have refactored the code for extending additional models for the recommendation engine.
 * We have updated the aspect-based collaborative filtering recommendation engine with user review rating normalization. Now other user's ratings will be recorded as an overall mean over all reviews and a normalized score. This will help the engine deal with the bias of ratings given by different users.
 * We have added evaluation code for the recommendation engine. Currently, we only support the RMSE error on the predicted item score. We will add additional metrics in the near future.
+
+### Apr 12th, 2020
+
+* We have refactored the codebase for supporting different methods while keeping the same components (datasets, etc.).
+* We implemented a pipeline for training deep learning models with future extensions in mind.
+* We implemented a MLP policy that predicts scores from user and item input pairs.
+* For predicting visiting probability, we currently can directly map user scores to a probability value.
+* We train our MLP model and provide results on the performance of this model. Training logs are available at [https://app.wandb.ai/jingyuny/faber](https://app.wandb.ai/jingyuny/faber).
