@@ -33,7 +33,7 @@ The resulting directory structure in the `data/` folder will look like the follo
 
 ## Running the Web Service
 
-Run the web service at port 6010 by running the following command: `python3 app.py`.
+Run the web service at port 6010 by running the following command: `python3 components/app.py`.
 
 ## Current Project Status
 
