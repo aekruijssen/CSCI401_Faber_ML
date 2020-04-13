@@ -188,9 +188,9 @@ class Trainer(object):
                 val_pred_labels = self.model(val_user_vec, val_item_vec)
                 
                 # compute loss and accuracy
-                val_loss = torch.sum((val_pred_labels - val_labels) ** 2)
+                val_loss = torch.mean((val_pred_labels - val_labels) ** 2)
                 val_rmse = torch.sqrt(val_loss)
-                val_acc = (torch.abs(val_pred_labels - val_labels) < 0.5).sum().double() / config.batch_size
+                val_acc = torch.mean((torch.abs(val_pred_labels - val_labels) < 0.5).double())
                 val_info.update({
                     "pred_labels": val_pred_labels.detach().cpu().numpy(),
                     "loss": val_loss.detach().cpu().numpy(),
