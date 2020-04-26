@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
+from util.pytorch import to_tensor
 from models.utils import MLP
 
 
@@ -20,3 +22,13 @@ class MlpModel(nn.Module):
         x = self.fc(x)
         x = F.tanh(x) * (output_max - output_min) + output_min
         return x
+
+    def process_input(self, batch):
+        config = self._config
+        user_vec = np.array([item['user']['vec'] for item in batch])
+        item_vec = np.array([item['item']['vec'] for item in batch])
+        labels = np.array([item['stars'] for item in batch])
+        user_vec = to_tensor(user_vec, config.device)
+        item_vec = to_tensor(item_vec, config.device)
+        labels = to_tensor(labels, config.device)
+        return (user_vec, item_vec), labels

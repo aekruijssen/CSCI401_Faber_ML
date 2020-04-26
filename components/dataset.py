@@ -87,14 +87,22 @@ class YelpReviewsDataset(Dataset):
         data_points = []
         for index, row in df.iterrows():
             reviews_of_user = self.dataset_train.loc[self.dataset_train['user_id'] == row['user_id']]
-            reviews_of_user = reviews_of_user[['business_id', 'stars']]
-            user_obj = {"reviews": [], "user_id": row['user_id'], "vec": row['user_vec']}
-            for _, review in reviews_of_user.iterrows():
-                user_obj["reviews"].append({'business_id': review['business_id'], 'rating': review['stars']})
+            user_obj = {
+                "reviews": reviews_of_user['text'].tolist(),
+                "id": row['user_id'],
+                "vec": row['user_vec']
+            }
+
+            reviews_of_item = self.dataset_train.loc[self.dataset_train['business_id'] == row['business_id']]
+            item_obj = {
+                "reviews": reviews_of_item['text'].tolist(),
+                "id": row['business_id'],
+                "vec": row['business_vec']
+            }
+
             data_points.append({
                 "user": user_obj,
-                "item_id": row['business_id'],
-                "item_vec": row['business_vec'],
+                "item": item_obj,
                 "stars": row['stars']
             })
         return data_points

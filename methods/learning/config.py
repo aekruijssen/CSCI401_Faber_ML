@@ -14,7 +14,7 @@ def parse_args():
                         help='Name of dataset.')
 
     # model
-    parser.add_argument('--model', type=str, default='mlp',
+    parser.add_argument('--model', type=str, default='lstm',
                         help='Name of the model.')
     
     # hardware
@@ -38,6 +38,8 @@ def parse_args():
                         help='Number of dimensions in the hidden layers.')
     parser.add_argument('--n_hid', type=int, default=3,
                         help='Number of hidden layers in each module.')
+    parser.add_argument('--embedding_dim', type=int, default=100,
+                        help='Number of dimensions of word embeddings.')
 
     # logging
     parser.add_argument('--log_root_dir', type=str, default='logs',

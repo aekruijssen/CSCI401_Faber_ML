@@ -14,6 +14,8 @@ Download the aspect annotation information [aspect\_restaurants.csv](http://ir.i
 
 Download the saved user vectors, item vectors, and processed reviews at [this link](https://drive.google.com/drive/folders/1Jt3U2ix-zsZljOEYikY8Hc3y_kLDYH5G?usp=sharing). Save them to folder `data/generated/` Note that this link is only accessible for people with USC email addresses.
 
+Download the word embeddings from [this link](http://nlp.stanford.edu/data/glove.6B.zip) and extract the txt files to `methods/learning/models/word2vec/`
+
 The resulting directory structure in the `data/` folder will look like the following:
 
 ```

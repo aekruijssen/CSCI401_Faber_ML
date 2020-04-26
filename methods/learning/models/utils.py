@@ -37,3 +37,21 @@ class MLP(nn.Module):
     def forward(self, ob):
         return self.fc(ob)
 
+
+class SentenceEncoderLSTM(nn.Module):
+    '''
+    Embeds a sentence to a sentence vector. A sentence is represented by a
+    vector of size (sentence_length, embedding_size).
+    '''
+    def __init__(self, config):
+        super().__init__()
+
+        self.embedding_dim = config.embedding_dim
+        self.hidden_dim = config.hidden_dim
+
+        self.lstm = nn.LSTM(self.embedding_dim, self.hidden_dim)
+
+    def forward(self, sentence):
+        lstm_out, _ = self.lstm(sentence.view(len(sentence), 1, -1))
+        return lstm_out.view(len(sentence), -1)[-1]
+

@@ -11,9 +11,9 @@ import random
 from tqdm import tqdm
 
 from config import parse_args
-from util import hex2rgb
+from util import hex2rgb, AttrDict
 from util.logger import logger
-from util.pytorch import to_tensor, get_ckpt_path
+from util.pytorch import get_ckpt_path
 from models import get_model_by_name
 from components.dataset import get_dataset_by_name
 
@@ -25,12 +25,11 @@ class Trainer(object):
 
         # get dataset
         self.dataset = get_dataset_by_name(config.dataset)()
-        self.config.input_dim = len(self.dataset[0]['item_vec'])
+        self.config.input_dim = len(self.dataset[0]['item']['vec'])
 
         # get model
         self.model = get_model_by_name(config.model)(self.config)
         self.model = self.model.to(config.device)
-
 
         # get optimizer
         self.optimizer = torch.optim.Adam(self.model.parameters(),
@@ -127,18 +126,13 @@ class Trainer(object):
             # sample inputs
             logger.info("Sampling inputs.")
             batch = self.dataset.sample_batch(config.batch_size, mode='train')
-            user_vec = np.array([item['user']['vec'] for item in batch])
-            item_vec = np.array([item['item_vec'] for item in batch])
-            labels = np.array([item['stars'] for item in batch])
-            user_vec = to_tensor(user_vec, config.device)
-            item_vec = to_tensor(item_vec, config.device)
-            labels = to_tensor(labels, config.device)
+            model_inputs, labels = self.model.process_input(batch)
             train_info.update({
                 "labels": labels.detach().cpu().numpy()    
             })
             
             # compute embeddings for all samples
-            pred_labels = self.model(user_vec, item_vec)
+            pred_labels = self.model(*model_inputs)
             
             # compute loss and accuracy
             loss = torch.mean((pred_labels - labels) ** 2)
@@ -173,19 +167,14 @@ class Trainer(object):
                 val_info = {}
 
                 val_batch = self.dataset.sample_batch(config.batch_size, mode='val')
-                val_user_vec = np.array([item['user']['vec'] for item in val_batch])
-                val_item_vec = np.array([item['item_vec'] for item in val_batch])
-                val_labels = np.array([item['stars'] for item in val_batch])
-                val_user_vec = to_tensor(val_user_vec, config.device)
-                val_item_vec = to_tensor(val_item_vec, config.device)
-                val_labels = to_tensor(val_labels, config.device)
+                val_model_inputs, val_labels = self.model.process_input(val_batch)
 
                 val_info.update({
                     "labels": val_labels.detach().cpu().numpy()    
                 })
 
                 # compute embeddings for all samples
-                val_pred_labels = self.model(val_user_vec, val_item_vec)
+                val_pred_labels = self.model(*val_model_inputs)
                 
                 # compute loss and accuracy
                 val_loss = torch.mean((val_pred_labels - val_labels) ** 2)
@@ -210,6 +199,7 @@ class Trainer(object):
 
 if __name__ == '__main__':
     config, _ = parse_args()
+    config = AttrDict(vars(config))
 
     # setup log directory
     config.run_name = '{}.{}'.format(config.dataset, config.prefix)
