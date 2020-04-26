@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.utils.rnn import pad_sequence
 import numpy as np
 
 from util import AttrDict
@@ -40,25 +41,33 @@ class LSTMModel(nn.Module):
             n_ur, n_ir = len(user_reviews), len(item_reviews)
 
             reviews = user_reviews + item_reviews
-            user_review_vectors = []
-            item_review_vectors = []
+            user_review_embeddings = []
+            user_review_lens = []
+            item_review_embeddings = []
+            item_review_lens = []
             for j, review in enumerate(reviews):
                 embedding = self.word2vec.process(review)
                 if embedding is None:
                     continue
                 embedding = to_tensor(embedding, config.device)
-                review_vector = self.sentence_lstm(embedding)
                 if j < n_ur:
-                    user_review_vectors.append(review_vector)
+                    user_review_embeddings.append(embedding)
+                    user_review_lens.append(embedding.shape[0])
                 else:
-                    item_review_vectors.append(review_vector)
+                    item_review_embeddings.append(embedding)
+                    item_review_lens.append(embedding.shape[0])
 
-            if len(user_review_vectors) > 0:
-                user_vec = torch.mean(torch.stack(user_review_vectors), 0)
+            if len(user_review_embeddings) > 0:
+                user_review_lens = to_tensor(user_review_lens, config.device).type(torch.int64)
+                user_review_embeddings = pad_sequence(user_review_embeddings, batch_first=True)
+                user_vec = self.sentence_lstm(user_review_embeddings, user_review_lens)
             else:
                 user_vec = to_tensor(np.zeros((config.h_dim,)), config.device)
-            if len(item_review_vectors) > 0:
-                item_vec = torch.mean(torch.stack(item_review_vectors), 0)
+
+            if len(item_review_embeddings) > 0:
+                item_review_lens = to_tensor(item_review_lens, config.device).type(torch.int64)
+                item_review_embeddings = pad_sequence(item_review_embeddings, batch_first=True)
+                item_vec = self.sentence_lstm(item_review_embeddings, item_review_lens)
             else:
                 item_vec = to_tensor(np.zeros((config.h_dim,)), config.device)
 

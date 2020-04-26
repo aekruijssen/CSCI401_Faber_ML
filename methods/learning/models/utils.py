@@ -49,9 +49,9 @@ class SentenceEncoderLSTM(nn.Module):
         self.embedding_dim = config.embedding_dim
         self.hidden_dim = config.hidden_dim
 
-        self.lstm = nn.LSTM(self.embedding_dim, self.hidden_dim)
+        self.lstm = nn.LSTM(self.embedding_dim, self.hidden_dim, batch_first=True)
 
-    def forward(self, sentence):
-        lstm_out, _ = self.lstm(sentence.view(len(sentence), 1, -1))
-        return lstm_out.view(len(sentence), -1)[-1]
+    def forward(self, sentence, lens):
+        lstm_out, _ = self.lstm(sentence)
+        return lstm_out[torch.arange(lens.shape[0]), lens - 1]
 
