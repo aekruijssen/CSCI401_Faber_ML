@@ -59,7 +59,7 @@ class YelpReviewsDataset(Dataset):
             return self.dataset_test
     
     def sample_batch(self, batch_size, mode='train'):
-        sampled_rows = self.get_dataset(mode)[:10].sample(batch_size)
+        sampled_rows = self.get_dataset(mode).sample(batch_size)
         return self._df_to_data_point(sampled_rows)
     
     def size(self, mode='train'):
