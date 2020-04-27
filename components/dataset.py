@@ -83,7 +83,7 @@ class YelpReviewsDataset(Dataset):
         raise ValueError('Please enter a valid mode.')
         
     def __getitem__(self, key):
-        return self._df_to_data_point(self.dataset.iloc[key:key+1])[0]E
+        return self._df_to_data_point(self.dataset.iloc[key:key+1])[0]
 
     @property
     def _dataset_name(self):
