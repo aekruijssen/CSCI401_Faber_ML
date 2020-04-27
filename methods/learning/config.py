@@ -10,7 +10,7 @@ def parse_args():
     )
 
     # dataset
-    parser.add_argument('--dataset', type=str, default='yelp',
+    parser.add_argument('--dataset', type=str, default='yelp_balanced',
                         help='Name of dataset.')
 
     # model
@@ -30,15 +30,15 @@ def parse_args():
                         help='Whether job is used for training.')
     
     # hyperparameters
-    parser.add_argument('--batch_size', type=int, default=16,
+    parser.add_argument('--batch_size', type=int, default=8,
                         help='Number of instances in a batch.')
     parser.add_argument('--lr', type=float, default=1e-3,
                         help='Learning rate.')
-    parser.add_argument('--h_dim', type=int, default=64,
+    parser.add_argument('--h_dim', type=int, default=32,
                         help='Number of dimensions in the hidden layers.')
-    parser.add_argument('--n_hid', type=int, default=3,
+    parser.add_argument('--n_hid', type=int, default=1,
                         help='Number of hidden layers in each module.')
-    parser.add_argument('--embedding_dim', type=int, default=100,
+    parser.add_argument('--embedding_dim', type=int, default=50,
                         help='Number of dimensions of word embeddings.')
 
     # logging

@@ -38,7 +38,7 @@ class Trainer(object):
         # setup logging
         if self.config.is_train:
             exclude = ['device']
-            config_dict = self.config.__dict__.items()
+            config_dict = self.config.items()
             config_dict = {k: v for k, v in config_dict if k not in exclude}
             wandb.init(
                 resume=config.run_name,
@@ -124,7 +124,6 @@ class Trainer(object):
             train_info = {}
             
             # sample inputs
-            logger.info("Sampling inputs.")
             batch = self.dataset.sample_batch(config.batch_size, mode='train')
             model_inputs, labels = self.model.process_input(batch)
             train_info.update({
@@ -146,7 +145,6 @@ class Trainer(object):
             })
 
             # update network
-            logger.info("Update networks #{:8d}.".format(step))
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()

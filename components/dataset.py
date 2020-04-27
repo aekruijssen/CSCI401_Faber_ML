@@ -7,6 +7,8 @@ from sklearn.utils import shuffle
 def get_dataset_by_name(dataset_name):
     if dataset_name == 'yelp':
         return YelpReviewsDataset
+    elif dataset_name == 'yelp_balanced':
+        return BalancedYelpReviewsDataset
     else:
         raise ValueError("Dataset with name {} doesn't exist.".format(dataset_name))
 
@@ -42,7 +44,7 @@ class YelpReviewsDataset(Dataset):
         super(YelpReviewsDataset, self).__init__(**kwargs)
 
         # read dataset
-        self.dataset = shuffle(pd.read_json('data/generated/review.json'), random_state=self.seed)
+        self.dataset = shuffle(pd.read_json(self._dataset_name), random_state=self.seed)
         
         self.dataset_train = self.dataset.iloc[:self.size('train')]
         self.dataset_val = self.dataset.iloc[self.size('train'):self.size('train') + self.size('val')]
@@ -57,7 +59,7 @@ class YelpReviewsDataset(Dataset):
             return self.dataset_test
     
     def sample_batch(self, batch_size, mode='train'):
-        sampled_rows = self.get_dataset(mode).sample(batch_size)
+        sampled_rows = self.get_dataset(mode)[:10].sample(batch_size)
         return self._df_to_data_point(sampled_rows)
     
     def size(self, mode='train'):
@@ -81,7 +83,11 @@ class YelpReviewsDataset(Dataset):
         raise ValueError('Please enter a valid mode.')
         
     def __getitem__(self, key):
-        return self._df_to_data_point(self.dataset.iloc[key:key+1])[0]
+        return self._df_to_data_point(self.dataset.iloc[key:key+1])[0]E
+
+    @property
+    def _dataset_name(self):
+        return 'data/generated/review.json'
         
     def _df_to_data_point(self, df):
         data_points = []
@@ -106,3 +112,9 @@ class YelpReviewsDataset(Dataset):
                 "stars": row['stars']
             })
         return data_points
+
+
+class BalancedYelpReviewsDataset(YelpReviewsDataset):
+    @property
+    def _dataset_name(self):
+        return 'data/generated/review_balanced.json'
