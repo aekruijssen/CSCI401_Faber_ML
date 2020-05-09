@@ -65,6 +65,23 @@ class LearningRecommendationEngine(RecommendationEngine):
 
         return pred_labels.detach().cpu().numpy().flatten()
 
+    def predict_score_v2(self, user, item):
+        data_point = {
+            "user": {
+                "reviews": [x["content"] for x in user['reviews'] if 'content' in x.keys()]
+            },
+            "item": {
+                "reviews": [x["content"] for x in item['reviews'] if 'content' in x.keys()]
+            },
+            "stars": 0
+        }
+
+        inputs, _ = self.model.process_input([data_point])
+
+        pred_labels = self.model(*inputs)
+
+        return pred_labels.detach().cpu().numpy().flatten()
+
     def make_recommendations(self, user):
         raise NotImplementedError()
 

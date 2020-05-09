@@ -40,6 +40,34 @@ def predict_score():
     content = request.json
     return jsonify(model.predict_score(content["user"], content["business_id"]))
 
+@app.route('/predict_api_v2',methods=['POST'])
+def predict_score_v2():
+    '''
+    Predicts score given (user, item) pair.
+    
+    Sample Input (in json format):
+    { 
+        "user": {
+            "reviews": [
+                {
+                    "rating": 4.5,
+                    "content": "Blah."
+                }
+            ]
+        },
+        "business": {
+            "reviews": [
+                {
+                    "rating": 4.5,
+                    "content": "Blah."
+                }
+            ]
+        }
+    }
+    '''
+    content = request.json
+    return jsonify(model.predict_score_v2(content["user"], content["business"]))
+
 @app.route('/make_recommendations', methods=['POST'])
 def make_recommendations():
     '''
