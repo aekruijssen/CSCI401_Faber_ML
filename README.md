@@ -65,3 +65,9 @@ Run the web service at port 6010 by running the following command: `python3 comp
 * We implemented a MLP policy that predicts scores from user and item input pairs.
 * For predicting visiting probability, we currently can directly map user scores to a probability value.
 * We train our MLP model and provide results on the performance of this model. Training logs are available at [https://app.wandb.ai/jingyuny/faber](https://app.wandb.ai/jingyuny/faber).
+
+### Apr 26th, 2020
+
+* We have added the LSTM model that now can receive raw review texts for user as input and output score predictions (or visitating probability if we assume positive coordination between user score and visiting probability).
+* We implemented the LSTM recommendation engine service.
+* We have deployed the new service at the server we just set up for ML development [http://96.76.203.31:6010](http://96.76.203.31:6010).
